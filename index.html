@@ -707,7 +707,6 @@
                 ]
             },
 
-            
             album2: {
                 title: "Exclusive Internet Influencer Leak",
                 tag: "new-leak",
@@ -717,27 +716,27 @@
                 ]
             },
             album3: {
-        title: "New 01",
-        tag: "new-leak",
-        cover: "new/unicorn.asso.eu.org-IMG.12.png",
-        images: [
-            "new/unicorn.asso.eu.org-IMG.01.png",
-            "new/unicorn.asso.eu.org-IMG.02.png",
-            "new/unicorn.asso.eu.org-IMG.03.png",
-            "new/unicorn.asso.eu.org-IMG.04.png",
-            "new/unicorn.asso.eu.org-IMG.05.png",
-            "new/unicorn.asso.eu.org-IMG.06.png",
-            "new/unicorn.asso.eu.org-IMG.07.png",
-            "new/unicorn.asso.eu.org-IMG.08.png",
-            "new/unicorn.asso.eu.org-IMG.09.png",
-            "new/unicorn.asso.eu.org-IMG.10.png",
-            "new/unicorn.asso.eu.org-IMG.11.png",
-            "new/unicorn.asso.eu.org-IMG.12.png",
-            "new/unicorn.asso.eu.org-IMG.13.png",
-            "new/unicorn.asso.eu.org-IMG.14.png",
-            "new/unicorn.asso.eu.org-IMG.15.png"
-        ]
-    },
+                title: "New 01",
+                tag: "new-leak",
+                cover: "new/unicorn.asso.eu.org-IMG.12.png",
+                images: [
+                    "new/unicorn.asso.eu.org-IMG.01.png",
+                    "new/unicorn.asso.eu.org-IMG.02.png",
+                    "new/unicorn.asso.eu.org-IMG.03.png",
+                    "new/unicorn.asso.eu.org-IMG.04.png",
+                    "new/unicorn.asso.eu.org-IMG.05.png",
+                    "new/unicorn.asso.eu.org-IMG.06.png",
+                    "new/unicorn.asso.eu.org-IMG.07.png",
+                    "new/unicorn.asso.eu.org-IMG.08.png",
+                    "new/unicorn.asso.eu.org-IMG.09.png",
+                    "new/unicorn.asso.eu.org-IMG.10.png",
+                    "new/unicorn.asso.eu.org-IMG.11.png",
+                    "new/unicorn.asso.eu.org-IMG.12.png",
+                    "new/unicorn.asso.eu.org-IMG.13.png",
+                    "new/unicorn.asso.eu.org-IMG.14.png",
+                    "new/unicorn.asso.eu.org-IMG.15.png"
+                ]
+            }
         };
 
         let albumData = JSON.parse(localStorage.getItem('moviePlus_albums')) || initialDefaultAlbums;
@@ -748,9 +747,15 @@
             populateAdminControls();
             document.getElementById('adsterraLinkInput').value = globalAdsterraLink;
             
-            // 🔐 METHOD 1: Automatically open Admin popup if URL has '#admin' hash (e.g., yoursite.com/#admin)
+            // 🔐 URL එකේ අන්තිමට තියෙන Hash එක කියවා ක්‍රියාත්මක වීම
             if (window.location.hash === '#admin') {
                 toggleAdminGate();
+            } else if (window.location.hash) {
+                // ලින්ක් එකේ අග ඇල්බම් ID එකක් තිබේ නම් එය කෙලින්ම ඕපන් කරයි
+                let potentialAlbumId = window.location.hash.substring(1);
+                if (albumData[potentialAlbumId]) {
+                    openAlbum(potentialAlbumId);
+                }
             }
         };
 
@@ -761,7 +766,7 @@
             }
         });
 
-        // 🔐 METHOD 2: Secret Double-Click on Footer copyright text opens the Admin panel
+        // 🔐 SECRET DOUBLE-CLICK ON FOOTER
         document.getElementById('footerCopyright').addEventListener('dblclick', function() {
             toggleAdminGate();
         });
@@ -814,7 +819,8 @@
             const data = albumData[albumId];
             if (!data) return;
 
-            history.pushState({ albumOpen: true }, "");
+            // 🌟 URL එකට ඇල්බම් ID එක එකතු කරන කොටස (#album3 වැනි)
+            history.pushState({ albumOpen: true }, "", "#" + albumId);
 
             document.getElementById('modalAlbumTitle').innerText = data.title;
             document.getElementById('modalAlbumTag').innerText = `Category: ${data.tag.toUpperCase()}`;
@@ -867,6 +873,8 @@
             document.getElementById('lightboxModal').style.display = 'none';
             document.getElementById('albumModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+            // ඇල්බමයෙන් බැක් වීමේදී URL එක සාමාන්‍ය තත්වයට පත් කරයි
+            history.replaceState("", document.title, window.location.pathname + window.location.search);
         };
 
         /* --- ADMIN PANEL ENGINE FUNCTIONS --- */
@@ -875,7 +883,6 @@
         }
         function closeAdminGate() {
             document.getElementById('adminGateModal').style.display = 'none';
-            // Clear hash so it doesn't stay in URL bar endlessly
             if(window.location.hash === '#admin') {
                 history.replaceState("", document.title, window.location.pathname + window.location.search);
             }
@@ -894,7 +901,6 @@
                 document.getElementById('admin-panel-section').style.display = 'block';
                 window.scrollTo({top: 0, behavior: 'smooth'});
                 
-                // Clear hash after successful login
                 if(window.location.hash === '#admin') {
                     history.replaceState("", document.title, window.location.pathname + window.location.search);
                 }
@@ -969,7 +975,7 @@
                 saveToLocalStorage();
                 renderFolderGrid();
                 populateAdminControls();
-                alert("පින්තූරය සාර්ථකව මකා දැමුණා!");
+                alert("පින්තූorය සාර්ථකව මකා දැමුණා!");
             }
         }
 
@@ -1036,6 +1042,6 @@
                 alert("Adsterra Smart Link එක සාර්ථකව Update විය!");
             }
         }
-    </script>
+</script>
 </body>
 </html>
