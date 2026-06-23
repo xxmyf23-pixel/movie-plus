@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie ++ | Premium Dynamic Gallery</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;600;800&display=swap" rel="stylesheet">
-    <script src="https://inhaledrew.com/81/ae/74/81ae741999f649bd472a78af9be160a1.js"></script>
     <style>
         /* Global Styles */
         * {
@@ -14,6 +13,8 @@
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
+<script src="https://inhaledrew.com/81/ae/74/81ae741999f649bd472a78af9be160a1.js"></script>
+
 
         body {
             background-color: #08080a;
@@ -91,7 +92,7 @@
         /* Top Navigation Header */
         header {
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Centered logo for a cleaner viewer look */
             align-items: center;
             padding: 15px 5%;
             background: rgba(14, 14, 18, 0.95);
@@ -534,6 +535,8 @@
             user-select: none;
         }
     </style>
+    <script src="https://inhaledrew.com/81/ae/74/81ae741999f649bd472a78af9be160a1.js"></script>
+
 </head>
 <body>
 
@@ -548,9 +551,9 @@
             </div>
         </div>
     </div>
-    <script src="https://inhaledrew.com/3f/2e/90/3f2e907ba0ad1e3f03a0b905ca5a8ea0.js"></script>
+<script src="https://inhaledrew.com/3f/2e/90/3f2e907ba0ad1e3f03a0b905ca5a8ea0.js"></script>
 
-    <!-- Header Section -->
+    <!-- Header Section (Cleaned: Admin Button Completely Removed from Public view) -->
     <header>
         <a href="#" class="logo" id="siteLogo">Movie<span> ++</span></a>
     </header>
@@ -659,9 +662,9 @@
                 </div>
                 <button onclick="history.back()" style="background:#ff0055; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">Close Album</button>
             </div>
-            <div style="flex-grow: 1; text-align: center; color: #ffaa00; font-size: 1rem; font-weight: 600; padding: 0 20px;">
-                🔥 මෙතන තියෙන හැම පොටෝ එකක්ම එකිනෙකට වෙනස් සමහර ඒවා එක විදියට පෙනුනට Full Photo එක බලන්න Photo එක උඩ click කරලා ads එකක් ආවොත් Back වෙන්න 🔥
-            </div>
+  <div style="flex-grow: 1; text-align: center; color: #ffaa00; font-size: 1rem; font-weight: 600; padding: 0 20px;">
+        🔥 මෙතන තියන හැම පොටො එකමක්ම එකිනෙකට වෙනස් සමහර එවා එක විදියට පෙනුනට Full Photo එක බලන්න Photo එක උඩ click කරල  ads ඒකක් අවොත්  Back වෙන්න 🔥
+    </div>
             <div class="sub-photo-grid" id="modalPhotoGrid">
                 <!-- Inner photos via JS -->
             </div>
@@ -697,9 +700,9 @@
             document.getElementById('age-gate').style.display = 'none';
         }
 
-        // Default Data Set (Truncated for space, keeping data structure intact)
+        // Default Data Set
         const initialDefaultAlbums = {
-            album1: {
+    album1: {
                 title: "Premium Midnight Glamour Shoot",
                 tag: "hot",
                 cover: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=400&auto=format&fit=crop",
@@ -1725,9 +1728,11 @@ album32: {
             populateAdminControls();
             document.getElementById('adsterraLinkInput').value = globalAdsterraLink;
             
+            // 🔐 URL එකේ අන්තිමට තියෙන Hash එක කියවා ක්‍රියාත්මක වීම
             if (window.location.hash === '#admin') {
                 toggleAdminGate();
             } else if (window.location.hash) {
+                // ලින්ක් එකේ අග ඇල්බම් ID එකක් තිබේ නම් එය කෙලින්ම ඕපන් කරයි
                 let potentialAlbumId = window.location.hash.substring(1);
                 if (albumData[potentialAlbumId]) {
                     openAlbum(potentialAlbumId);
@@ -1735,12 +1740,14 @@ album32: {
             }
         };
 
+        // Listen for hash change dynamically without page refresh
         window.addEventListener('hashchange', function() {
             if (window.location.hash === '#admin') {
                 toggleAdminGate();
             }
         });
 
+        // 🔐 SECRET DOUBLE-CLICK ON FOOTER
         document.getElementById('footerCopyright').addEventListener('dblclick', function() {
             toggleAdminGate();
         });
@@ -1793,6 +1800,7 @@ album32: {
             const data = albumData[albumId];
             if (!data) return;
 
+            // 🌟 URL එකට ඇල්බම් ID එක එකතු කරන කොටස (#album3 වැනි)
             history.pushState({ albumOpen: true }, "", "#" + albumId);
 
             document.getElementById('modalAlbumTitle').innerText = data.title;
@@ -1846,6 +1854,7 @@ album32: {
             document.getElementById('lightboxModal').style.display = 'none';
             document.getElementById('albumModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+            // ඇල්බමයෙන් බැක් වීමේදී URL එක සාමාන්‍ය තත්වයට පත් කරයි
             history.replaceState("", document.title, window.location.pathname + window.location.search);
         };
 
@@ -1947,7 +1956,7 @@ album32: {
                 saveToLocalStorage();
                 renderFolderGrid();
                 populateAdminControls();
-                alert("පින්තූරය සාර්ථකව මකා දැමුණා!");
+                alert("පින්තූorය සාර්ථකව මකා දැමුණා!");
             }
         }
 
@@ -2014,8 +2023,9 @@ album32: {
                 alert("Adsterra Smart Link එක සාර්ථකව Update විය!");
             }
         }
-    </script>
-    <script src="https://inhaledrew.com/81/ae/74/81ae741999f649bd472a78af9be160a1.js"></script>
-    <script src="https://inhaledrew.com/3f/2e/90/3f2e907ba0ad1e3f03a0b905ca5a8ea0.js"></script>
+</script>
+<script src="https://inhaledrew.com/81/ae/74/81ae741999f649bd472a78af9be160a1.js"></script>
+<script src="https://inhaledrew.com/3f/2e/90/3f2e907ba0ad1e3f03a0b905ca5a8ea0.js"></script>
+
 </body>
 </html>
