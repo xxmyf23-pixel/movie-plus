@@ -4512,6 +4512,8 @@ album122: {
                 return;
             }
 
+        
+
             videos.forEach(videoUrl => {
                 let vCard = document.createElement('div');
                 vCard.className = 'sub-photo-card';
@@ -4519,13 +4521,14 @@ album122: {
                 let wrapper = document.createElement('div');
                 wrapper.className = 'sub-video-wrapper';
 
-                let video = document.createElement('video');
-                video.src = videoUrl;
-                video.controls = true;
-                video.preload = "metadata";
-                video.playsInline = true;
+                let iframe = document.createElement('iframe');
+iframe.src = videoUrl;
+iframe.width = '100%';
+iframe.height = '300';
+iframe.allow = 'autoplay';
+iframe.allowFullscreen = true;
 
-                wrapper.appendChild(video);
+                wrapper.appendChild(iframe);
                 vCard.appendChild(wrapper);
                 videoGrid.appendChild(vCard);
             });
