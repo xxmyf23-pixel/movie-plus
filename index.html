@@ -344,6 +344,55 @@
             transform: scale(1.05);
         }
 
+
+        /* Media Tabs */
+        .media-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 0 0 25px;
+            flex-wrap: wrap;
+        }
+        .media-tab-btn {
+            background: #1c1c24;
+            color: #bbbbcc;
+            border: 1px solid #2d2d38;
+            padding: 11px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: 0.3s ease;
+        }
+        .media-tab-btn:hover,
+        .media-tab-btn.active {
+            background: linear-gradient(135deg, #ff0055, #b3003b);
+            color: #fff;
+            border-color: #ff0055;
+            box-shadow: 0 5px 15px rgba(255, 0, 85, 0.35);
+        }
+        .media-panel {
+            display: none;
+        }
+        .media-panel.active {
+            display: block;
+        }
+        .sub-video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #0b0b10;
+            overflow: hidden;
+        }
+        .sub-video-wrapper video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
         /* 🖼️ Premium Lightbox (Photo Pop-up View on Same Page) */
         .lightbox-modal {
             position: fixed;
@@ -600,9 +649,15 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 10px;">
                     <label>New Photo Path / URL</label>
-                    <input type="text" id="newPhotoUrl" class="form-control" placeholder="e.g., hot_shoot/img1.webp">
+                    <input type="text" id="newPhotoUrl" class="form-control" placeholder="e.g., images/img1.webp">
                 </div>
-                <button class="btn-admin-submit" style="margin-bottom: 15px;" onclick="addPhotoToAlbumViaAdmin()">Add Photo</button>
+                <button class="btn-admin-submit" style="margin-bottom: 10px;" onclick="addPhotoToAlbumViaAdmin()">Add Photo</button>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label>New Video Path / URL</label>
+                    <input type="text" id="newVideoUrl" class="form-control" placeholder="e.g., videos/video1.mp4">
+                </div>
+                <button class="btn-admin-submit" style="margin-bottom: 15px; background:#ff0055; color:#fff;" onclick="addVideoToAlbumViaAdmin()">Add Video</button>
                 
                 <label style="font-size: 0.85rem; color: #ffaa00; font-weight: 600; margin-bottom: 5px;">Photos Inside Selected Album:</label>
                 <div id="adminPhotoList" style="max-height:130px; overflow-y:auto; border:1px solid #2d2d3d; padding:5px; border-radius:6px; background:#111;">
@@ -665,8 +720,21 @@
   <div style="flex-grow: 1; text-align: center; color: #ffaa00; font-size: 1rem; font-weight: 600; padding: 0 20px;">
         🔥 මෙතන තියන හැම පොටො එකමක්ම එකිනෙකට වෙනස් සමහර එවා එක විදියට පෙනුනට Full Photo එක බලන්න Photo එක උඩ click කරල  ads ඒකක් අවොත්  Back වෙන්න 🔥
     </div>
-            <div class="sub-photo-grid" id="modalPhotoGrid">
-                <!-- Inner photos via JS -->
+            <div class="media-tabs">
+                <button class="media-tab-btn active" id="photosTabBtn" onclick="switchMediaTab('photos')">📷 Photos</button>
+                <button class="media-tab-btn" id="videosTabBtn" onclick="switchMediaTab('videos')">🎬 Videos</button>
+            </div>
+
+            <div class="media-panel active" id="photosPanel">
+                <div class="sub-photo-grid" id="modalPhotoGrid">
+                    <!-- Photos via JS -->
+                </div>
+            </div>
+
+            <div class="media-panel" id="videosPanel">
+                <div class="sub-photo-grid" id="modalVideoGrid">
+                    <!-- Videos via JS -->
+                </div>
             </div>
         </div>
     </div>
@@ -882,7 +950,8 @@
             "5new/unicorn.asso.eu.org-IMG.15.webp"
         ]
     },
-   album9: {
+
+album9: {
         title: "Exclusive Premium Pack 07",
         tag: "new-leak",
         cover: "new6/unicorn.asso.eu.org-IMG.04.webp",
@@ -4279,10 +4348,16 @@ album108: {
             "124/unicorn.asso.eu.org-IMG.04.webp"
         ]
     }
-
 };
 
         let albumData = JSON.parse(localStorage.getItem('moviePlus_albums')) || initialDefaultAlbums;
+        // Backward compatibility: existing albums keep their photos,
+        // while new/updated albums can use a separate videos array.
+        Object.keys(albumData).forEach(id => {
+            if (!Array.isArray(albumData[id].images)) albumData[id].images = [];
+            if (!Array.isArray(albumData[id].videos)) albumData[id].videos = [];
+        });
+
         let globalAdsterraLink = localStorage.getItem('moviePlus_adsterra') || "https://inhaledrew.com/wjivm7gx4?key=b20dc568a9014f3d9b1a3923b4fcfe10";
 
         window.onload = function() {
@@ -4332,7 +4407,7 @@ album108: {
                 card.innerHTML = `
                     <div class="folder-cover-wrapper">
                         <img src="${album.cover}" alt="Movie Poster" loading="lazy">
-                        <div class="folder-badge">📁 ${album.images.length} Photos</div>
+                        <div class="folder-badge">📁 ${(album.images || []).length} Photos • 🎬 ${(album.videos || []).length} Videos</div>
                     </div>
                     <div class="folder-info">
                         <span class="folder-tag">${album.tag.toUpperCase()}</span>
@@ -4362,37 +4437,96 @@ album108: {
             const data = albumData[albumId];
             if (!data) return;
 
-            // 🌟 URL එකට ඇල්බම් ID එක එකතු කරන කොටස (#album3 වැනි)
+            // Support old album data automatically.
+            data.images = Array.isArray(data.images) ? data.images : [];
+            data.videos = Array.isArray(data.videos) ? data.videos : [];
+
             history.pushState({ albumOpen: true }, "", "#" + albumId);
 
             document.getElementById('modalAlbumTitle').innerText = data.title;
-            document.getElementById('modalAlbumTag').innerText = `Category: ${data.tag.toUpperCase()}`;
-            
+            document.getElementById('modalAlbumTag').innerText =
+                `Category: ${data.tag.toUpperCase()}`;
+
+            renderAlbumPhotos(data.images);
+            renderAlbumVideos(data.videos);
+            switchMediaTab('photos');
+
+            document.getElementById('albumModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function switchMediaTab(type) {
+            const photosBtn = document.getElementById('photosTabBtn');
+            const videosBtn = document.getElementById('videosTabBtn');
+            const photosPanel = document.getElementById('photosPanel');
+            const videosPanel = document.getElementById('videosPanel');
+
+            const isPhotos = type === 'photos';
+
+            photosBtn.classList.toggle('active', isPhotos);
+            videosBtn.classList.toggle('active', !isPhotos);
+            photosPanel.classList.toggle('active', isPhotos);
+            videosPanel.classList.toggle('active', !isPhotos);
+        }
+
+        function renderAlbumPhotos(images) {
             const photoGrid = document.getElementById('modalPhotoGrid');
             photoGrid.innerHTML = '';
 
-            data.images.forEach(imgUrl => {
+            if (!images.length) {
+                photoGrid.innerHTML =
+                    '<p style="grid-column:1/-1;text-align:center;color:#777;padding:30px;">No photos available.</p>';
+                return;
+            }
+
+            images.forEach(imgUrl => {
                 let pCard = document.createElement('div');
                 pCard.className = 'sub-photo-card';
-                
+
                 let wrapper = document.createElement('div');
                 wrapper.className = 'sub-photo-wrapper';
-                
+
                 let img = document.createElement('img');
                 img.src = imgUrl;
-                img.alt = "Sub Photo";
-                
+                img.alt = "Photo";
+                img.loading = "lazy";
                 img.onclick = function() {
                     openAdAndPhoto(imgUrl);
                 };
-                
+
                 wrapper.appendChild(img);
                 pCard.appendChild(wrapper);
                 photoGrid.appendChild(pCard);
             });
+        }
 
-            document.getElementById('albumModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
+        function renderAlbumVideos(videos) {
+            const videoGrid = document.getElementById('modalVideoGrid');
+            videoGrid.innerHTML = '';
+
+            if (!videos.length) {
+                videoGrid.innerHTML =
+                    '<p style="grid-column:1/-1;text-align:center;color:#777;padding:30px;">No videos available.</p>';
+                return;
+            }
+
+            videos.forEach(videoUrl => {
+                let vCard = document.createElement('div');
+                vCard.className = 'sub-photo-card';
+
+                let wrapper = document.createElement('div');
+                wrapper.className = 'sub-video-wrapper';
+
+                let video = document.createElement('video');
+                video.src = videoUrl;
+                video.controls = true;
+                video.preload = "metadata";
+                video.playsInline = true;
+
+                wrapper.appendChild(video);
+                vCard.appendChild(wrapper);
+                videoGrid.appendChild(vCard);
+            });
         }
 
         function openAdAndPhoto(imgUrl) {
@@ -4537,7 +4671,8 @@ album108: {
                 title: title,
                 tag: cat,
                 cover: cover,
-                images: []
+                images: [],
+                videos: []
             };
 
             saveToLocalStorage();
@@ -4565,6 +4700,30 @@ album108: {
                 populateAdminControls();
                 document.getElementById('newPhotoUrl').value = '';
                 alert("පින්තූරය ඇල්බමයට සාර්ථකව එකතු විය!");
+            }
+        }
+
+        function addVideoToAlbumViaAdmin() {
+            let targetId = document.getElementById('targetAlbumSelect').value;
+            let videoUrl = document.getElementById('newVideoUrl').value.trim();
+
+            if (!videoUrl) {
+                alert("කරුණාකර video Path/Link එක ලබා දෙන්න.");
+                return;
+            }
+
+            if (albumData[targetId]) {
+                if (!Array.isArray(albumData[targetId].videos)) {
+                    albumData[targetId].videos = [];
+                }
+
+                albumData[targetId].videos.push(videoUrl);
+                saveToLocalStorage();
+                renderFolderGrid();
+                populateAdminControls();
+
+                document.getElementById('newVideoUrl').value = '';
+                alert("Video එක ඇල්බමයට සාර්ථකව එකතු විය!");
             }
         }
 
