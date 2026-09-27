@@ -4541,14 +4541,26 @@ album122: {
                 let wrapper = document.createElement('div');
                 wrapper.className = 'sub-video-wrapper';
 
-                let iframe = document.createElement('iframe');
-iframe.src = videoUrl;
-iframe.width = '100%';
-iframe.height = '300';
-iframe.allow = 'autoplay';
-iframe.allowFullscreen = true;
+                // Google Drive preview pages can show a Google sign-in screen
+                // inside Telegram/in-app browsers. Convert Drive preview links
+                // to a direct media URL and use a native HTML5 video player.
+                let directUrl = videoUrl;
+                const driveMatch = videoUrl.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+                if (driveMatch) {
+                    directUrl = 'https://drive.usercontent.google.com/download?id=' + encodeURIComponent(driveMatch[1]) + '&export=download&confirm=t';
+                }
 
-                wrapper.appendChild(iframe);
+                let video = document.createElement('video');
+                video.src = directUrl;
+                video.controls = true;
+                video.playsInline = true;
+                video.preload = 'metadata';
+                video.style.width = '100%';
+                video.style.height = '300px';
+                video.style.objectFit = 'contain';
+                video.style.background = '#000';
+
+                wrapper.appendChild(video);
                 vCard.appendChild(wrapper);
                 videoGrid.appendChild(vCard);
             });
