@@ -608,22 +608,21 @@
         <a href="#" class="logo" id="siteLogo">Movie<span> ++</span></a>
     </header>
 <script>
-  // වෙබ් අඩවියේ ඇති සියලුම video-item සඳහා Adsterra Popunder Ad එක ක්‍රියාත්මක වේ
+  // Ad එක එක පාරක් විවෘත වුණාද නැද්ද යන්න පරීක්ෂා කරන Variable එක
+  let adOpened = false;
+
   document.addEventListener('click', function(e) {
     const videoLink = e.target.closest('.video-item');
     
     if (videoLink) {
-      e.preventDefault(); // සාමාන්‍ය පරිදි එකවර ලින්ක් එක විවෘත වීම වළකයි
-
-      // 1. ඔබේ Adsterra Link එක අලුත් ටැබ් එකක විවෘත වේ
-      window.open('https://inhaledrew.com/ighipaz6?key=4ac4e334b9cf10124bab29dbcdcb036d', '_blank');
-
-      // 2. ක්ලික් කළ වීඩියෝවේ නියම ලින්ක් එක ලබාගෙන තත්පර 0.4 කින් විවෘත කරයි
-      const targetUrl = videoLink.getAttribute('href');
-      
-      setTimeout(function() {
-        window.location.href = targetUrl;
-      }, 400);
+      if (!adOpened) {
+        // 1. පළමු ක්ලික් එක: වීඩියෝව විවෘත වීම වළක්වා Ad එක පමණක් අලුත් ටැබ් එකක විවෘත කරයි
+        e.preventDefault();
+        window.open('https://inhaledrew.com/ighipaz6?key=4ac4e334b9cf10124bab29dbcdcb036d', '_blank');
+        adOpened = true; // Ad එක open වූ බව සටහන් කර ගනී
+      } else {
+        // 2. දෙවන ක්ලික් එක (Back වී ආපසු ක්ලික් කළ විට): e.preventDefault() නොවන නිසා සාමාන්‍ය පරිදි Video එක open වේ
+      }
     }
   });
 </script>
