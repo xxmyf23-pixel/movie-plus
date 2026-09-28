@@ -587,7 +587,6 @@
             user-select: none;
         }
     </style>
-    <script src="https://inhaledrew.com/81/ae/74/81ae741999f649bd472a78af9be160a1.js"></script>
 </head>
 <body>
 
@@ -602,13 +601,32 @@
             </div>
         </div>
     </div>
-<script src="https://inhaledrew.com/3f/2e/90/3f2e907ba0ad1e3f03a0b905ca5a8ea0.js"></script>
+
 
     <!-- Header Section (Cleaned: Admin Button Completely Removed from Public view) -->
     <header>
         <a href="#" class="logo" id="siteLogo">Movie<span> ++</span></a>
     </header>
+<script>
+  // වෙබ් අඩවියේ ඇති සියලුම video-item සඳහා Adsterra Popunder Ad එක ක්‍රියාත්මක වේ
+  document.addEventListener('click', function(e) {
+    const videoLink = e.target.closest('.video-item');
+    
+    if (videoLink) {
+      e.preventDefault(); // සාමාන්‍ය පරිදි එකවර ලින්ක් එක විවෘත වීම වළකයි
 
+      // 1. ඔබේ Adsterra Link එක අලුත් ටැබ් එකක විවෘත වේ
+      window.open('https://inhaledrew.com/ighipaz6?key=4ac4e334b9cf10124bab29dbcdcb036d', '_blank');
+
+      // 2. ක්ලික් කළ වීඩියෝවේ නියම ලින්ක් එක ලබාගෙන තත්පර 0.4 කින් විවෘත කරයි
+      const targetUrl = videoLink.getAttribute('href');
+      
+      setTimeout(function() {
+        window.location.href = targetUrl;
+      }, 400);
+    }
+  });
+</script>
     <!-- Admin Dashboard UI Panel -->
     <section id="admin-panel-section">
         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ffaa00; padding-bottom:10px;">
