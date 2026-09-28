@@ -5516,6 +5516,70 @@ album122: {
             });
         }
 
+        // ==================== VIDEO AD -> RETURN -> PLAY FLOW ====================
+        let pendingVideoUrl = null;
+        let pendingVideoWrapper = null;
+        let videoAdWaiting = false;
+
+        function unlockPendingVideo() {
+            if (!videoAdWaiting || !pendingVideoUrl || !pendingVideoWrapper) return;
+
+            const videoUrl = pendingVideoUrl;
+            const wrapper = pendingVideoWrapper;
+
+            videoAdWaiting = false;
+            pendingVideoUrl = null;
+            pendingVideoWrapper = null;
+
+            window.removeEventListener('focus', unlockPendingVideo);
+            document.removeEventListener('visibilitychange', handleVideoVisibilityChange);
+
+            // Do not load the Google Drive video until the user has returned from the ad.
+            wrapper.innerHTML = '';
+
+            let iframe = document.createElement('iframe');
+            iframe.src = videoUrl;
+            iframe.title = 'Video player';
+            iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+            iframe.setAttribute('allowfullscreen', '');
+            iframe.setAttribute('loading', 'eager');
+            iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+
+            wrapper.appendChild(iframe);
+        }
+
+        function handleVideoVisibilityChange() {
+            if (document.visibilityState === 'visible') {
+                unlockPendingVideo();
+            }
+        }
+
+        function openAdAndVideo(videoUrl, wrapper) {
+            // First click: open Adsterra only. Keep the video unloaded.
+            pendingVideoUrl = videoUrl;
+            pendingVideoWrapper = wrapper;
+            videoAdWaiting = true;
+
+            window.addEventListener('focus', unlockPendingVideo);
+            document.addEventListener('visibilitychange', handleVideoVisibilityChange);
+
+            let adOpened = false;
+            try {
+                if (globalAdsterraLink && globalAdsterraLink.trim() !== '') {
+                    const adWindow = window.open(globalAdsterraLink, '_blank');
+                    adOpened = !!adWindow;
+                }
+            } catch (error) {
+                console.log('Ad intercepted safely.');
+            }
+
+            // Popup blockers may prevent the ad from opening. In that case, do not leave
+            // the user with a permanently locked card; allow a normal video click to retry.
+            if (!adOpened && !globalAdsterraLink) {
+                unlockPendingVideo();
+            }
+        }
+
         function renderAlbumVideos(videos) {
             const videoGrid = document.getElementById('modalVideoGrid');
             videoGrid.innerHTML = '';
@@ -5532,18 +5596,33 @@ album122: {
 
                 let wrapper = document.createElement('div');
                 wrapper.className = 'sub-video-wrapper';
+                wrapper.style.cursor = 'pointer';
 
-                // Google Drive /preview links are intended to be opened in an iframe.
-                // Keep the supplied URL unchanged so existing album data continues to work.
-                let iframe = document.createElement('iframe');
-                iframe.src = videoUrl;
-                iframe.title = 'Video player';
-                iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
-                iframe.setAttribute('allowfullscreen', '');
-                iframe.setAttribute('loading', 'lazy');
-                iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+                // IMPORTANT: No iframe is created here. This prevents Google Drive from
+                // loading/playing before the Ad flow has completed.
+                let gate = document.createElement('div');
+                gate.style.position = 'absolute';
+                gate.style.inset = '0';
+                gate.style.display = 'flex';
+                gate.style.flexDirection = 'column';
+                gate.style.alignItems = 'center';
+                gate.style.justifyContent = 'center';
+                gate.style.gap = '10px';
+                gate.style.background = 'linear-gradient(135deg, #111118, #050507)';
+                gate.style.color = '#fff';
+                gate.style.textAlign = 'center';
+                gate.style.padding = '20px';
+                gate.innerHTML = `
+                    <div style="font-size:42px;line-height:1;">▶</div>
+                    <div style="font-size:18px;font-weight:700;">Watch Video</div>
+                    <div style="font-size:13px;color:#bbb;">Click to continue</div>
+                `;
 
-                wrapper.appendChild(iframe);
+                gate.onclick = function() {
+                    openAdAndVideo(videoUrl, wrapper);
+                };
+
+                wrapper.appendChild(gate);
                 vCard.appendChild(wrapper);
                 videoGrid.appendChild(vCard);
             });
